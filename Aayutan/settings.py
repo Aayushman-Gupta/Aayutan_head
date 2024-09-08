@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt.token_blacklist',
+    'accounts',
     'health_app',
+    'chat',
     'channels',
     'rest_framework_simplejwt'
 ]
