@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne', 
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'rest_framework.authtoken',
@@ -58,11 +58,10 @@ MIDDLEWARE = [
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': "channels.layers.InMemoryChannelLayer"
-        }
     }
+}
 
 ROOT_URLCONF = 'Aayutan.urls'
-
 
 
 TEMPLATES = [
@@ -81,12 +80,12 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL='health_app.Patient'
+AUTH_USER_MODEL = 'health_app.Patient'
 
 WSGI_APPLICATION = 'Aayutan.wsgi.application'
 
 REST_FRAMEWORK = {
-    
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -113,12 +112,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'AayutanDb',
         'USER': 'postgres',
-        'PASSWORD': '1234',
+        'PASSWORD': '12345678',
         'HOST': 'localhost',
-        'PORT': '5432', 
+        'PORT': '5432',
     }
 }
-
 
 
 # Password validation
