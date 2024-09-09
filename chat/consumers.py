@@ -1,5 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Message
+from .models import Message, ChatSession
+from health_app.models import Patient
+from asgiref.sync import sync_to_async
 import json
 
 
@@ -7,13 +9,13 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         # Get chat box id
-        self.chat_id = self.scope["url_route"]["kwargs"]["chat_id"]
+        self.chat_id = self.scope['url_route']['kwargs']['chat_id']
 
         # TODO : Check whether chat_id is valid or not and store it in self.chat
-        self.chat = None
+        self.chat = await sync_to_async(ChatSession.objects.get)(chat_id=self.chat_id)
 
         # Group name limit is just 100 characters
-        self.group_name = "chat_%s" % self.chat_id
+        self.group_name = 'chat_%s' % self.chat_id
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
         # Accept connection
@@ -27,36 +29,41 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
 
         # Received Data
-        message = text_data_json["message"]
-        username = text_data_json["username"]
+        message = text_data_json['message']
+        sender_username = text_data_json['sender_username']
+        receiver_username = text_data_json['receiver_username']
 
-        # Store message in DB
-        Message.objects.create(
-            chat=self.chat,
-            
-        )
+        sender = await sync_to_async(Patient.objects.get)(username=sender_username)
+        receiver = await sync_to_async(Patient.objects.get)(username=receiver_username)
 
+        # Store message in DB asynchronously
+        await sync_to_async(Message.objects.create)(chat=self.chat, sender=sender, receiver=receiver, body=message)
+
+        # Send message to group
         await self.channel_layer.group_send(
             self.group_name,
             {
-                "type": "chatbox_message",
-                "message": message,
-                "username": username,
+                'type': 'chatbox_message',
+                'message': message,
+                'sender_username': sender_username,
+                'receiver_username': receiver_username
             },
         )
     # Receive message from room group.
 
     async def chatbox_message(self, event):
-        message = event["message"]
-        username = event["username"]
+        message = event['message']
+        sender_username = event['sender_username']
+        receiver_username = event['receiver_username']
+
         # send message and username of sender to websocket
         await self.send(
             text_data=json.dumps(
                 {
-                    "message": message,
-                    "username": username,
+                    'message': message,
+                    'sender_username': sender_username,
+                    'receiver_username': receiver_username
                 }
             )
         )
-
     pass

@@ -6,6 +6,9 @@ class ChatSession(models.Model):
     chat_id = models.CharField(max_length=64, unique=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.chat_id
+
 
 class Message(models.Model):
     chat = models.ForeignKey(
