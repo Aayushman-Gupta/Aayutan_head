@@ -6,5 +6,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path("create-chat-session/", views.create_chat_session,
-         name="create-chat-session")
+         name="create-chat-session"),
+    path("get-chat-messages/<str:chat_id>/",
+         views.get_chat_messages, name="get-chat-messages")
 ]

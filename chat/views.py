@@ -5,8 +5,11 @@ from rest_framework import status
 from django.http import JsonResponse
 from health_app.models import Patient
 from .models import ChatSession
+from .models import Message
+from .serializers import MessageSerializer
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
 
-
+@csrf_exempt
 @api_view(['POST'])
 def create_chat_session(request):
     username1 = request.data.get('username1')
@@ -32,6 +35,14 @@ def create_chat_session(request):
         return Response(data={'message': 'Chat session created.', 'chat_id': chat_id}, status=status.HTTP_201_CREATED)
     else:
         return Response(data={'message': 'Chat session already exists.', 'chat_id': chat_id}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_chat_messages(request, chat_id):
+    chat = ChatSession.objects.get(chat_id=chat_id)
+    messages = Message.objects.filter(chat=chat).order_by('created_time')
+    serializer = MessageSerializer(messages, many=True)
+    return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 def generate_chat_id(user1, user2):
