@@ -16,13 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/accounts/', include('accounts.urls')),
+    path('auth/', include('accounts.urls')),
     path('chat/', include('chat.urls')),
-    # Make sure to include your app URLs here
     path('', include('health_app.urls')),
-
 ]

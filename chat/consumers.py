@@ -1,8 +1,8 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Message, ChatSession
-from health_app.models import Patient
 from asgiref.sync import sync_to_async
 import json
+from .models import Message, ChatSession
+from health_app.models import Patient
 
 
 class ChatRoomConsumer(AsyncWebsocketConsumer):
@@ -21,8 +21,10 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
         # Accept connection
         await self.accept()
 
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
 
     # This function receive messages from WebSocket.
     async def receive(self, text_data):
@@ -49,8 +51,9 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
                 'receiver_username': receiver_username
             },
         )
-    # Receive message from room group.
 
+
+    # Receive message from room group.
     async def chatbox_message(self, event):
         message = event['message']
         sender_username = event['sender_username']

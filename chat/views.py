@@ -7,15 +7,14 @@ from health_app.models import Patient
 from .models import ChatSession
 from .models import Message
 from .serializers import MessageSerializer
-from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from django.views.decorators.csrf import csrf_exempt
+
 
 @csrf_exempt
 @api_view(['POST'])
 def create_chat_session(request):
     username1 = request.data.get('username1')
     username2 = request.data.get('username2')
-    print(username1)
-    print(username2)
     if not username1 or not username2:
         return Response(data={'error': 'user1 and user2 IDs are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
