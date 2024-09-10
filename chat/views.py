@@ -8,6 +8,7 @@ from .models import ChatSession
 from .models import Message
 from .serializers import MessageSerializer
 from django.views.decorators.csrf import csrf_exempt
+from Aayutan.utils.api_response import ApiResponse
 
 
 @csrf_exempt
@@ -31,9 +32,21 @@ def create_chat_session(request):
     chat_session, created = ChatSession.objects.get_or_create(chat_id=chat_id)
 
     if created:
-        return Response(data={'message': 'Chat session created.', 'chat_id': chat_id}, status=status.HTTP_201_CREATED)
+        response = ApiResponse(
+            status='success',
+            data={'chat_id': chat_id},
+            message='Chat session created.',
+            status_code=201
+        )
+        return Response(data=response.to_dict(), status=status.HTTP_201_CREATED)
     else:
-        return Response(data={'message': 'Chat session already exists.', 'chat_id': chat_id}, status=status.HTTP_200_OK)
+        response = ApiResponse(
+            status='success',
+            data={'chat_id': chat_id},
+            message='Chat session already exists.',
+            status_code=200
+        )
+        return Response(data=response.to_dict(), status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -41,7 +54,36 @@ def get_chat_messages(request, chat_id):
     chat = ChatSession.objects.get(chat_id=chat_id)
     messages = Message.objects.filter(chat=chat).order_by('created_time')
     serializer = MessageSerializer(messages, many=True)
-    return Response(data=serializer.data, status=status.HTTP_200_OK)
+    response = ApiResponse(
+        status='success',
+        status_code=200,
+        data=serializer.data
+    )
+    return Response(data=response.to_dict(), status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+def delete_chat_session(request, chat_id):
+    chat = ChatSession.objects.get(chat_id=chat_id)
+    chat.delete()
+    response = ApiResponse(
+        status='success',
+        status_code=200,
+        message='Chat deleted successfully'
+    )
+    return Response(data=response.to_dict(), status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+def delete_message(request, message_id):
+    message = Message.objects.get(id=message_id)
+    message.delete()
+    response = ApiResponse(
+        status='success',
+        status_code=200,
+        message='Message deleted successfully'
+    )
+    return Response(data=response.to_dict(), status=status.HTTP_200_OK)
 
 
 def generate_chat_id(user1, user2):
