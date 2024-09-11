@@ -1,5 +1,6 @@
 #type:ignore
 from django.contrib.auth.models import AbstractUser,Group,Permission
+from django.core.validators import MaxValueValidator
 from django.db import models
 
 
@@ -71,37 +72,61 @@ class Patient(UserProfile):
     # diseases=models.ManyToManyField()
 
 
-# class Doctor(UserProfile):
-#     experience = models.IntegerField()
+class Doctor(UserProfile):
+    experience = models.IntegerField(validators=[MaxValueValidator(50)])
+    
+    MBBS = 'MBBS'
+    MD = 'MD'
+    DO = 'DO'
+    DNB = 'DNB'
+    MS = 'MS'
+    BDS = 'BDS'
+    MDS = 'MDS'
+    PhD = 'PhD'
+    MPH = 'MPH'
+    DM = 'DM'
+    MCh = 'MCh'
+    BAMS = 'BAMS'
+    BHMS = 'BHMS'
+    BPT = 'BPT'
+    MPT = 'MPT'
+    BVSc = 'BVSc'
+    MSc = 'MSc'
+    DGO = 'DGO'
+    FRCS = 'FRCS'
+    MRCP = 'MRCP'
+    DCH = 'DCH'
+    DPH = 'DPH'
+    DDS = 'DDS'
+    DEGREE_CHOICES = [
+        (MBBS, 'MBBS'),
+        (MD, 'MD'),
+        (DO, 'DO'),
+        (DNB, 'DNB'),
+        (MS, 'MS'),
+        (BDS, 'BDS'),
+        (MDS, 'MDS'),
+        (PhD, 'PhD'),
+        (MPH, 'MPH'),
+        (DM, 'DM'),
+        (MCh, 'MCh'),
+        (BAMS, 'BAMS'),
+        (BHMS, 'BHMS'),
+        (BPT, 'BPT'),
+        (MPT, 'MPT'),
+        (BVSc, 'BVSc'),
+        (MSc, 'MSc'),
+        (DGO, 'DGO'),
+        (FRCS, 'FRCS'),
+        (MRCP, 'MRCP'),
+        (DCH, 'DCH'),
+        (DPH, 'DPH'),
+        (DDS, 'DDS'),
 
-#     # Degree choices
-#     MBBS = 'MBBS'
-#     MD = 'MD'
-#     DO = 'DO'
-#     DNB = 'DNB'
-#     MS = 'MS'
-#     BDS = 'BDS'
-#     MDS = 'MDS'
-#     PHD = 'PhD'
-#     MPH = 'MPH'
-#     OTHER = 'Other'
-
-#     DEGREE_CHOICES = [
-#         (MBBS, 'MBBS'),
-#         (MD, 'MD'),
-#         (DO, 'DO'),
-#         (DNB, 'DNB'),
-#         (MS, 'MS'),
-#         (BDS, 'BDS'),
-#         (MDS, 'MDS'),
-#         (PHD, 'PhD'),
-#         (MPH, 'MPH'),
-#         (OTHER, 'Other'),
-#     ]
-#     degree = models.CharField(max_length=50, choices=DEGREE_CHOICES)
-#     groups = models.ManyToManyField(Group, related_name='doctor_groups')
-#     user_permissions = models.ManyToManyField(Permission, related_name='doctor_permissions')        
-#     # speciality =models.ManyToManyField()
+    ]
+    degree = models.CharField(max_length=50, choices=DEGREE_CHOICES)
+    user_permissions = models.ManyToManyField(Permission, related_name='doctor_permissions')        
+    speciality =models.CharField(max_length=100)
 
 
 

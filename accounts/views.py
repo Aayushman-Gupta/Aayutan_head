@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import PatientSerializer
+from health_app.serializers import PatientSerializer
 from rest_framework import serializers
 from health_app.models import Patient
 from health_app.tokens import get_token_for_user

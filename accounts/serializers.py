@@ -1,23 +1,4 @@
-from rest_framework import serializers
-from health_app.models import Patient
 
-class PatientSerializer(serializers.ModelSerializer):
-    # password = serializers.CharField(write_only=True)
-    # password_confirmation = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = Patient
-        fields = ['username','password']
-
-
-    
-    def create(self, validated_data):
-        user = Patient(
-            username=validated_data['username'],
-        )   
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
     # def validate(self, data):
     #     if data['password'] != data['password_confirmation']:
     #         raise serializers.ValidationError({"password_confirmation": "Passwords must match."})
