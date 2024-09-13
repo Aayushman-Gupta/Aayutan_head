@@ -100,8 +100,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME':timedelta(hours=24),
-    'REFRESH_TOKEN_LIFETIME':timedelta(days=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=5),
     'BLACKLIST_AFTER_ROTATION': True,
     'TOKEN_BLACKLIST_ENABLED': True,
 }
@@ -119,7 +119,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'AayutanDb',
         'USER': 'postgres',
-        'PASSWORD': '1234',
+        'PASSWORD': '12345678',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -167,9 +167,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-  "http://127.0.0.1:5500"
+    "http://127.0.0.1:5500"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5500"
-]   
+]
