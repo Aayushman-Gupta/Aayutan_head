@@ -8,6 +8,7 @@ from .models import ChatSession
 from .models import Message
 from .serializers import MessageSerializer
 from django.views.decorators.csrf import csrf_exempt
+from .utils.getChatId import generate_chat_id
 from Aayutan.utils.api_response import ApiResponse
 
 
@@ -84,14 +85,3 @@ def delete_message(request, message_id):
         message='Message deleted successfully'
     )
     return Response(data=response.to_dict(), status=status.HTTP_200_OK)
-
-
-def generate_chat_id(user1, user2):
-    # Ensure consistent ordering to make it independent of who is the user1 or user2
-    Patients = sorted([str(user1.username), str(user2.username)])
-    combined = "".join(Patients)
-
-    # TODO : Ensure at most 95 characters
-    # Create a hash of the combined string
-    chat_id = hashlib.sha256(combined.encode()).hexdigest()
-    return chat_id
