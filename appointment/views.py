@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
-from .models import Appointment, TakeAppointment
+from .models import Appointment, TakeAppointment, Day
 from .serializers import AppointmentSerializer, TakeAppointmentSerializer
 from Aayutan.utils.api_response import ApiResponse
 from rest_framework.response import Response
@@ -15,13 +15,15 @@ from health_app.models import Doctor, Patient
 
 @api_view(['POST'])
 def add_appointment(request):
-    doctor_id = request.data.get('doctor_id')
+    doctor = request.user
     # A list of days (e.g., ['Monday', 'Tuesday', 'Wednesday'])
-    days = request.data.get('days')
+    days = [Day.objects.get_or_create(name=day)[0]
+            for day in request.data.get('days')]
+    print(days)
     start_time = request.data.get('start_time')
     address = request.data.get('address')
     try:
-        doctor = Doctor.objects.get(id=doctor_id)
+        doctor = Doctor.objects.get(id=doctor.id)
         appointments = []
         for day in days:
             appointments.append(Appointment(
