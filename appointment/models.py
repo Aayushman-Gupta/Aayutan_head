@@ -22,20 +22,19 @@ class Day(models.Model):
 
 class Appointment(models.Model):
     # user = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(
-        Doctor, max_length=100, on_delete=models.CASCADE)
-    appointment_days = models.ManyToManyField(Day)
+    doctor = models.ForeignKey(Doctor, max_length=100, on_delete=models.CASCADE)
+    day = models.ManyToManyField(Day)
     address = models.CharField(max_length=100)
     start_time = models.CharField(max_length=10)
     # hospital_name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.full_name
+        return self.id   
 
     # def get_absolute_url(self):
     # return reverse('appointment:delete-appointment', kwargs={'pk': self.pk})
-
+        
 
 class TakeAppointment(models.Model):
     user = models.ForeignKey(Patient, on_delete=models.CASCADE)
@@ -46,4 +45,4 @@ class TakeAppointment(models.Model):
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.full_name
+        return self.username + "<-|->" + self.appointment.doctor.username

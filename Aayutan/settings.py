@@ -119,7 +119,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'AayutanDb',
         'USER': 'postgres',
-        'PASSWORD': '12345678',
+        'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }
