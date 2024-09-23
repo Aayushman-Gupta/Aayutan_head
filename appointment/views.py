@@ -10,35 +10,40 @@ from health_app.models import Doctor, Patient
 
 
 # ********************************
-# ***ADD AN APPOINTMENT**********
+# **ADD AN APPOINTMENT*********
 # ********************************
 
 @api_view(['POST'])
 def add_appointment(request):
     doctor = request.user
+    
+    serializer = AppointmentSerializer(data=request.data)
+    
+    if serializer.is_valid():
     # A list of days (e.g., ['Monday', 'Tuesday', 'Wednesday'])
-    days = [Day.objects.get_or_create(name=day)[0]
-            for day in request.data.get('days')]
-    print(days)
-    start_time = request.data.get('start_time')
-    address = request.data.get('address')
-    try:
-        doctor = Doctor.objects.get(id=doctor.id)
-        appointments = []
-        for day in days:
-            appointments.append(Appointment(
-                doctor=doctor,
-                day=day,
-                start_time=start_time,
-                address=address
-            ))
+        days = [Day.objects.get_or_create(name=day)[0]
+                for day in request.data.get('days')]
+        print(days)
+        start_time = request.data.get('start_time')
+        address = request.data.get('address')
+        try:
+            doctor = Doctor.objects.get(id=doctor.id)
+            appointments = []
+            for day in days:
+                appointments.append(Appointment(
+                    doctor=doctor,
+                    day=day,
+                    start_time=start_time,
+                    address=address
+                ))
 
-        Appointment.objects.bulk_create(appointments)
-    except Doctor.DoesNotExist:
-        return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+            Appointment.objects.bulk_create(appointments)
+        except Doctor.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    return Response({'success': 'Appointments created successfully'}, status=status.HTTP_201_CREATED)
-
+        return Response({'success': 'Appointments created successfully'}, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
  # UPDATE ANY APPOINTMENT
 
 
@@ -64,78 +69,92 @@ def update_appointment(request):
 
 @api_view(['GET'])
 def get_my_appointments(request, pk=None):
-    response = None
-    if pk is not None:
-        # Fetch a single appointment details
-        appointment = Appointment.objects.get(id=pk)
-        res_data = AppointmentSerializer(appointment)
-        response = ApiResponse(
-            status='success', status_code=200, message='Appointment with ', data=res_data)
-    else:
-        # Fetch all appointments
-        appointments = Appointment.objects.filter(
-            doctor=request.user)
-        res_data = AppointmentSerializer(appointments, many=True).data
-        response = ApiResponse(
-            status='success', status_code=200, message='All appointments', data=res_data)
-    return Response(status=status.HTTP_200_OK, data=response.to_dict())
-
-
-@api_view(['DELETE'])
-def delete_appointment(request):
-    appointment_id = request.data.get('appointment_id')
-
-    if not appointment_id:
-        return Response({'error': 'Appointment ID is required'}, status=status.HTTP_400_BAD_REQUEST)
-
+    
+#URL to check on POSTMAN::"http://127.0.0.1:8000/appointment/get-my-appointments/?username=Aayushman"
     try:
-        # Get the appointment by ID
-        appointment = Appointment.objects.get(id=appointment_id)
-        appointment.delete()
+        if pk is not None:
+            # Fetch a single appointment details
+            appointment = Appointment.objects.get(id=pk)
+            res_data = AppointmentSerializer(appointment)
+            response = ApiResponse(
+                status='success', status_code=200, message='Appointment with ', data=res_data)
+        else:
+            username = request.query_params.get('username') 
+            if username is None:
+                    return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+ 
+            # Fetch all appointments
+            appointments = Appointment.objects.filter(doctor__username=username)
+            
+            if not appointments.exists():
+                    return Response({'error': 'No appointments found'}, status=status.HTTP_404_NOT_FOUND)
+                
+            res_data = AppointmentSerializer(appointments, many=True).data
+            response = ApiResponse(
+                status='success', status_code=200, message='All appointments', data=res_data)
+        return Response(status=status.HTTP_200_OK, data=response.to_dict())
+    
     except Appointment.DoesNotExist:
         return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    return Response({'success': 'Appointment deleted successfully'}, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['DELETE'])
+
+# URL for delete path::"http://127.0.0.1:8000/appointment/delete/2/"
+
+def delete_appointment(request, id):
+    try:
+        appointment = Appointment.objects.get(id=id)
+        appointment.delete()
+        return Response({'message': 'Appointment deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    except Appointment.DoesNotExist:
+        return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST']) 
 def take_appointment(request):
     # Get the patient ID and appointment ID from the request
     patient_id = request.data.get('patient_id')
-    appointment_id = request.data.get('appointment_id')
+    appointment_id =request.data.get('appointment_id')
     phone_number = request.data.get('phone_number')
+
+    if not patient_id or not appointment_id or not phone_number:
+        return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Check if patient exists
     try:
         patient = Patient.objects.get(id=patient_id)
-
+        
         # Check if the appointment exists or not
         appointment = Appointment.objects.get(id=appointment_id)
-        if TakeAppointment.objects.filter(appointment=appointment).exists():
-            return Response({'error': 'Appointment already taken'}, status=status.HTTP_400_BAD_REQUEST)
-
-        take_appointment = TakeAppointment.objects.create(
-            user=patient,
-            appointment=appointment,
-            phone_number=phone_number
-        )
     except Patient.DoesNotExist:
         return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
     except Appointment.DoesNotExist:
         return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if TakeAppointment.objects.filter(appointment=appointment).exists():
+            return Response({'error': 'Appointment already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
+    TakeAppointment.objects.create(
+            patient=patient,
+            appointment=appointment,
+            phone_number=phone_number
+        )
     return Response({'success': 'Appointment successfully booked'}, status=status.HTTP_201_CREATED)
+      
 
 
-@api_view(['POST'])
-def cancel_appointment(request):
+@api_view(['DELETE'])
+def cancel_appointment(request,patient_id,appointment_id):
+    
+    # URL for testing::"http://127.0.0.1:8000/appointment/cancel-appointment/3/3/"
+    
     # Get the patient ID and appointment ID from the request
-    patient_id = request.data.get('patient_id')
-    appointment_id = request.data.get('appointment_id')
-
     try:
         patient = Patient.objects.get(id=patient_id)
+        appointment = Appointment.objects.get(id=appointment_id)
         booking = TakeAppointment.objects.get(
-            user=patient, appointment_id=appointment_id)
+            patient=patient, appointment=appointment)
         booking.delete()
 
     except Patient.DoesNotExist:
@@ -143,16 +162,19 @@ def cancel_appointment(request):
     except TakeAppointment.DoesNotExist:
         return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    return Response({'success': 'Appointment successfully canceled'}, status=status.HTTP_200_OK)
+    return Response({'success': 'Appointment successfully cancelled'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 def get_patient_appointments(request):
-    patient_appointments = TakeAppointment.objects.filter(user=request.user)
+    #URL to check ::"http://127.0.0.1:8000/appointment/get-patient-appointments/?username=aayushman123"
+    username=request.query_params.get('username')
+    
+    patient_appointments = TakeAppointment.objects.filter(patient__username=username)
     res_data = TakeAppointmentSerializer(patient_appointments, many=True).data
     api_response = ApiResponse(
-        status='success', status_code=200, data=res_data.to_dict())
-    return Response(status=status.HTTP_200_OK, data=api_response)
+        status='success', status_code=200, data=res_data)
+    return Response(status=status.HTTP_200_OK, data=api_response.to_dict())
 
 
 @api_view(['GET'])
