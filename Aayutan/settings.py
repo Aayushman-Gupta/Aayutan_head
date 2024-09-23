@@ -85,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = 'health_app.Patient'
+AUTH_USER_MODEL = 'health_app.UserProfile'
 
 WSGI_APPLICATION = 'Aayutan.wsgi.application'
 
