@@ -73,7 +73,7 @@ class Patient(UserProfile):
 
 
 class Doctor(UserProfile):
-    experience = models.IntegerField(validators=[MaxValueValidator(50)])
+    experience = models.IntegerField(validators=[MaxValueValidator(50)],default=0)
 
     MBBS = 'MBBS'
     MD = 'MD'
@@ -124,8 +124,8 @@ class Doctor(UserProfile):
         (DDS, 'DDS'),
 
     ]
-    degree = models.CharField(max_length=50, choices=DEGREE_CHOICES)
-    speciality = models.CharField(max_length=100)
+    degree = models.CharField(max_length=50, choices=DEGREE_CHOICES,null=True)
+    speciality = models.CharField(max_length=100,null=True)
 
 
 class Disease(models.Model):

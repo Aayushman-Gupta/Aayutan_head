@@ -6,7 +6,6 @@ class ApiResponse:
         self.error_code = error_code
         self.status_code = status_code
         self.details = details
-        return self.to_dict()
 
     def to_dict(self):
         response = {

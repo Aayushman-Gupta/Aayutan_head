@@ -16,7 +16,9 @@ from health_app.models import Doctor, Patient
 @api_view(['POST'])
 def add_appointment(request):
     doctor = request.user
-    
+    print(doctor)
+    print(doctor.id)
+    print(doctor.username)
     serializer = AppointmentSerializer(data=request.data)
     
     if serializer.is_valid():
@@ -27,7 +29,7 @@ def add_appointment(request):
         start_time = request.data.get('start_time')
         address = request.data.get('address')
         try:
-            doctor = Doctor.objects.get(id=doctor.id)
+            doctor = Doctor.objects.get(username=doctor.username)
             appointments = []
             for day in days:
                 appointments.append(Appointment(
@@ -60,11 +62,13 @@ def update_appointment(request):
         if new_address:
             appointment.address = new_address
         appointment.save()
-        response = AppointmentSerializer(appointment).data
+        data = AppointmentSerializer(appointment).data
+        data['success']='Appointment updated successfully'
+        response=ApiResponse(status='success',status_code=200,data=data)
+        return Response(status=status.HTTP_200_OK, data=response.to_dict())
 
     except Appointment.DoesNotExist:
         return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
-    return Response({'success': 'Appointment updated successfully'}, status=status.HTTP_200_OK, data=response.data)
 
 
 @api_view(['GET'])
