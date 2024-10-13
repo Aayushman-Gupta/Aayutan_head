@@ -1,3 +1,5 @@
+import hashlib
+
 def generate_chat_id(user1, user2):
     # Ensure consistent ordering to make it independent of who is the user1 or user2
     Patients = sorted([str(user1.username), str(user2.username)])

@@ -19,8 +19,8 @@ class ChatSession(models.Model):
 
 
 class Message(models.Model):
-    chat = models.ForeignKey(
-        ChatSession, related_name='chat_session_messages', on_delete=models.CASCADE)
+    # chat = models.ForeignKey(
+    #     ChatSession, related_name='chat_session_messages', on_delete=models.CASCADE)
     sender = models.ForeignKey(
         Patient, related_name='sent_messages', on_delete=models.CASCADE)
     receiver = models.ForeignKey(
